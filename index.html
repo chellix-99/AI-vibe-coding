@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>荒野余生：苍岭山脉</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 背景故事页面 -->
+        <div id="story-screen" class="screen active">
+            <div class="story-content">
+                <h1>🏔️ 荒野余生：苍岭山脉</h1>
+                <div class="story-text">
+                    <p class="story-quote">"2023年，某驴友因未带足水源，在腾格里沙漠失联3天后获救，但已重度脱水导致肾衰竭..."</p>
+                    
+                    <p>你是一名独自穿越<span class="highlight">"苍岭山脉"</span>（原型：鳌太线）的户外爱好者。</p>
+                    
+                    <p>出发前你准备了背包和物资，但一场突如其来的大雾让你偏离了路线。手机无信号，指南针受干扰，四周是茫茫原始森林。</p>
+                    
+                    <p>你必须在<span class="highlight">10-15天内</span>穿越苍岭山脉，到达终点。</p>
+                    
+                    <p class="story-warning">⚠️ 这不是游戏，这是3000+起真实遇险事件的缩影。每一个选择，都可能是生与死的边界。</p>
+                    
+                    <div class="stats-box">
+                        <h3>📊 真实数据</h3>
+                        <p>• 每年超过3000起驴友遇险事件</p>
+                        <p>• 60%因准备不足、物资匮乏、决策失误导致</p>
+                        <p>• 70%的户外死亡源于失温</p>
+                        <p>• 野外水源直接饮用，寄生虫感染率高达40%</p>
+                    </div>
+                </div>
+                <button id="start-story-btn" class="story-btn">我准备好了，开始挑战</button>
+                <button id="continue-btn" class="story-btn" style="display:none; background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">🔄 继续上次挑战</button>
+            </div>
+        </div>
+
+        <!-- 新手引导教程 -->
+        <div id="tutorial-overlay" class="tutorial-overlay" style="display:none;">
+            <div class="tutorial-content">
+                <div class="tutorial-step active" data-step="1">
+                    <h2>🎒 第一步：选择背包</h2>
+                    <p>背包决定你能携带多少物资。轻型背包容量小但速度快，重型背包容量大但行动慢。</p>
+                    <p class="tip">💡 提示：容量数字×10表示可携带的物品数量（如6=60重量单位）</p>
+                </div>
+                <div class="tutorial-step" data-step="2">
+                    <h2>🎁 第二步：携带物资</h2>
+                    <p>食物恢复饱腹度，水补充水分，工具帮助闯关。注意总重量不能超过背包容量！</p>
+                    <p class="tip">💡 提示：生鲜食品会腐败，注意保质期！体温低于35℃会失温</p>
+                </div>
+                <div class="tutorial-step" data-step="3">
+                    <h2>⚔️ 第三步：10-15天求生</h2>
+                    <p>每天会遇到随机事件，点击选项推进进度。当进度达到100%时成功穿越！</p>
+                    <p class="tip">💡 提示：属性过低时（饥饿/口渴/体能≤20）必须先使用物品补充！</p>
+                </div>
+                <div class="tutorial-buttons">
+                    <button id="skip-tutorial-btn" class="skip-btn">跳过教程</button>
+                    <div>
+                        <button id="prev-step-btn" style="display:none;">上一步</button>
+                        <button id="next-step-btn">下一步</button>
+                    </div>
+                </div>
+                <div class="tutorial-progress">
+                    <span class="dot active" data-step="1"></span>
+                    <span class="dot" data-step="2"></span>
+                    <span class="dot" data-step="3"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 背包选择页面 -->
+        <div id="backpack-screen" class="screen">
+            <h1>选择你的背包</h1>
+            <p class="screen-hint">背包容量决定你能带多少物资，影响生存策略（容量×10=最大重量）</p>
+            <div class="options" id="backpack-options"></div>
+        </div>
+
+        <!-- 物品选择页面 -->
+        <div id="item-screen" class="screen">
+            <h1>选择初始物资</h1>
+            <div class="day-info">
+                <span>第 <strong>1</strong> 天</span>
+                <span>时段：<strong>早晨</strong></span>
+            </div>
+            <div class="capacity-info">
+                <p>已用重量: <span id="used-weight">0</span> / <span id="total-capacity">0</span> （最大容量）</p>
+                <div class="capacity-bar">
+                    <div class="capacity-fill" id="capacity-fill"></div>
+                </div>
+                <p class="screen-hint">提示：食物恢复饱腹度🍖，水恢复水分💧，工具帮助闯关🔧，生鲜3天腐败</p>
+            </div>
+            <div class="item-categories" id="item-categories"></div>
+            <button id="start-game-btn" disabled>开始15天求生之旅</button>
+        </div>
+
+        <!-- 游戏主界面 -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <h2>第 <span id="day-number">1</span> 天</h2>
+                <div class="diary-fragments">
+                    📖 日记碎片: <span id="fragment-count">0</span>/5
+                </div>
+            </div>
+            
+            <div class="progress-section">
+                <div class="progress-label">前进进度: <span id="progress-label">0%</span></div>
+                <div class="progress-bar" style="height: 20px;">
+                    <div class="progress-fill" id="progress-fill" style="background: linear-gradient(90deg, #27ae60, #2ecc71);"></div>
+                </div>
+            </div>
+            
+            <div class="stats-panel" id="stats"></div>
+            
+            <div class="event-card" id="event-card">
+                <div class="event-header">
+                    <h3 id="event-title">事件加载中...</h3>
+                    <span class="event-type" id="event-type">固定事件</span>
+                </div>
+                <div class="event-desc" id="event-desc"></div>
+                <div class="event-options" id="event-options"></div>
+            </div>
+
+            <div class="cards-section">
+                <div class="section-title">
+                    <div class="css-icon icon-backpack"></div>
+                    <span>背包物品 (<span id="inv-count">0</span>件)</span>
+                </div>
+                <div class="inventory" id="inventory"></div>
+            </div>
+
+        </div>
+
+        <!-- 结局界面 -->
+        <div id="end-screen" class="screen">
+            <div class="end-content">
+                <h1 id="end-title"></h1>
+                <div class="end-icon" id="end-icon"></div>
+                <p id="end-message"></p>
+                <div class="end-stats" id="end-stats"></div>
+                <div class="end-story" id="end-story"></div>
+                <div class="badges" id="badges"></div>
+                <button onclick="location.reload()" class="restart-btn">🔄 重新开始挑战</button>
+            </div>
+        </div>
+
+        <!-- 底部事件日志 -->
+        <div id="event-log" class="event-log">
+            <div class="log-header">
+                <div class="css-icon icon-log"></div>
+                <h3>生存记录</h3>
+                <button onclick="clearLog()" class="clear-btn">清空</button>
+            </div>
+            <div class="log-content" id="log-content"></div>
+        </div>
+    </div>
+
+    <!-- 掷骰/运气演出 -->
+    <div id="roll-overlay" class="roll-overlay" style="display:none;">
+        <div class="roll-box">
+            <div class="roll-title">🎲 命运掷骰中…</div>
+            <div class="dice" id="dice">🎲</div>
+            <div class="roll-info" id="roll-info"></div>
+        </div>
+    </div>
+
+    <!-- 日记碎片弹层 -->
+    <div id="diary-popup" class="diary-popup" style="display:none;">
+        <div class="diary-card">
+            <div class="diary-icon">📖</div>
+            <h3>拾得一片日记碎片</h3>
+            <p id="diary-text"></p>
+            <button id="diary-close" class="diary-close">收好碎片</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
